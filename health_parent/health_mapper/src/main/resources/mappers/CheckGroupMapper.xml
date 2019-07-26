@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mapper.CheckGroupMapper">
+    <!--新增检查组-->
+    <insert id="add" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        insert into t_checkgroup values(null,#{code},#{name},#{helpCode},#{sex},#{remark},#{attention});
+    </insert>
+
+    <!--添加检查项和检查组中间表关系-->
+    <insert id="setCheckGroupAndCheckItem">
+        insert into t_checkgroup_checkitem values(#{checkgroup_id},#{checkitem_id})
+    </insert>
+
+    <!--条件查询检查组数据-->
+    <select id="findByCondition" resultType="CheckGroup">
+        select * from t_checkgroup
+        <if test="queryString!=null and queryString.trim()!=''">
+            where code = #{queryString} or name like '%' #{queryString} '%'
+        </if>
+    </select>
+
+    <!--通过id查询检查项数据-->
+    <select id="findById" resultType="CheckGroup">
+        select * from t_checkgroup where id = #{id}
+    </select>
+
+    <!--删除中间表关系-->
+    <delete id="deleteAssociation">
+        delete from t_checkgroup_checkitem where checkgroup_id = #{id}
+    </delete>
+    
+    <!--更新检查-->
+    <update id="edit">
+        update t_checkgroup
+        <set>
+            <if test="code!=null">
+                code = #{code},
+            </if>
+            <if test="name!=null">
+                name = #{name},
+            </if>
+            <if test="helpCode">
+                helpCode = #{helpCode},
+            </if>
+            <if test="sex">
+                sex = #{sex},
+            </if>
+            <if test="remark">
+                remark = #{remark},
+            </if>
+            <if test="attention">
+                attention = #{attention}
+            </if>
+            where id = #{id}
+        </set>
+    </update>
+
+    <!--查询所有检查组-->
+    <select id="findAll" resultType="CheckGroup">
+        select * from t_checkgroup
+    </select>
+
+    <!--自定义结果集:通过检查组id查询检查项-->
+    <resultMap id="CheckGroupAndCheckItemResultMap" type="CheckGroup">
+        <collection property="checkItems" javaType="List" ofType="CheckItem" select="com.itheima.mapper.CheckItemMapper.findCheckItemByCheckGroupId" column="id"></collection>
+    </resultMap>
+
+    <!--通过setmealId查询checkgroup-->
+    <select id="findCheckGroupBySetmealId" resultMap="CheckGroupAndCheckItemResultMap">
+        select * from t_checkgroup where id in(select checkgroup_id from t_setmeal_checkgroup where setmeal_id = #{setmealId})
+    </select>
+
+
+
+</mapper>

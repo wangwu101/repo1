@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	    http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://code.alibabatech.com/schema/dubbo
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <!--配置fastjosn-->
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="supportedMediaTypes" value="application/json"></property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    <bean class="com.alibaba.fastjson.support.config.FastJsonConfig">
+        <property name="serializerFeatures">
+            <array>
+                <!--输出json数据时，对null的属性也输出-->
+                <value>WriteMapNullValue</value>
+                <!--格式化日期，yyyy/MM/dd，默认是long类型-->
+                <value>WriteDateUseDateFormat</value>
+            </array>
+        </property>
+    </bean>
+
+    <!-- 指定应用名称 -->
+    <dubbo:application name="healthmobile_web" />
+    <!--指定服务注册中心地址-->
+    <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
+    <!--批量扫描-->
+    <dubbo:annotation package="com.itheima.controller" />
+    <!--
+        超时全局设置 10分钟
+        check=false 不检查服务提供方，开发阶段建议设置为false
+        check=true 启动时检查服务提供方，如果服务提供方没有启动则报错
+    -->
+    <dubbo:consumer timeout="600000" check="false"/>
+
+
+</beans>
